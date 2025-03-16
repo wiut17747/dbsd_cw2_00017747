@@ -1,0 +1,79 @@
+﻿@model IEnumerable<dbsd_cw2_00017747.Models.Book>
+
+@{
+    ViewBag.Title = "Books";
+}
+
+<h2>Books</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            Title
+        </th>
+        <th>
+           Physical location
+        </th>
+        <th>
+            Available
+        </th>
+        <th>
+            ISBN
+        </th>
+        <th>
+            Publisher ID
+        </th>
+        <th>
+            Cover image
+        </th>
+        <th>
+           Language
+        </th>
+        <th>
+            Publication date
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.title)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.physical_location)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.is_available)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.isbn)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.publisher_id)
+        </td>
+        <th>
+            @if (item.cover_image != null) {
+                <img src="data:image/jpeg;base64,@Convert.ToBase64String(item.cover_image)" alt="Cover" style="max-width: 100px;" />
+            } else {
+                <span style="color: grey; font-weight: normal">No Image</span>
+            }
+        </th>
+        <td>
+            @Html.DisplayFor(modelItem => item.language)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.publication_date)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id = item.id }) |
+            @Html.ActionLink("Details", "Details", new { id = item.id }) |
+            @Html.ActionLink("Delete", "Delete", new { id = item.id })
+        </td>
+    </tr>
+}
+
+</table>

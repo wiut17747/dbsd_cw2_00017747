@@ -1,0 +1,46 @@
+﻿using System;
+
+namespace dbsd_cw2_00017747.Models {
+    public class Book {
+        public int id {
+            get;
+            set;
+        }
+        public string title {
+            get;
+            set;
+        }
+        public string physical_location {
+            get;
+            set;
+        }
+
+        public bool is_available {
+            get;
+            set;
+        }
+
+        public string isbn {
+            get;
+            set;
+        }
+        public int publisher_id {
+            get;
+            set;
+        }
+
+        public byte[] cover_image {
+            get;
+            set;
+        }
+        public string language {
+            get;
+            set;
+        }
+        public DateTime? publication_date {
+            get;
+            set;
+        }
+
+    }
+}
