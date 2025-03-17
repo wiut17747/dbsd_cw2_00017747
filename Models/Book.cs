@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace dbsd_cw2_00017747.Models {
     public class Book {
@@ -6,10 +7,12 @@ namespace dbsd_cw2_00017747.Models {
             get;
             set;
         }
+        [Required]
         public string title {
             get;
             set;
         }
+        [Required]
         public string physical_location {
             get;
             set;
@@ -20,10 +23,13 @@ namespace dbsd_cw2_00017747.Models {
             set;
         }
 
+        [Required]
         public string isbn {
             get;
             set;
         }
+
+        [Required]
         public int publisher_id {
             get;
             set;
@@ -33,6 +39,8 @@ namespace dbsd_cw2_00017747.Models {
             get;
             set;
         }
+
+        [Required]
         public string language {
             get;
             set;

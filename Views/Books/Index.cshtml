@@ -41,32 +41,36 @@
 @foreach (var item in Model) {
     <tr>
         <td>
-            @Html.DisplayFor(modelItem => item.title)
+            @item.title
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.physical_location)
+            @item.physical_location
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.is_available)
+            <input type="checkbox" @(item.is_available ? "checked='checked'" : "") disabled="disabled" />
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.isbn)
+            @item.isbn
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.publisher_id)
+            @item.publisher_id
         </td>
         <th>
-            @if (item.cover_image != null) {
-                <img src="data:image/jpeg;base64,@Convert.ToBase64String(item.cover_image)" alt="Cover" style="max-width: 100px;" />
+            @if (item.cover_image != null && item.cover_image.Length > 0) {
+                try {
+                    <img src="data:image/jpeg;base64,@Convert.ToBase64String(item.cover_image)" alt="Cover" style="max-width: 100px;" />
+                } catch (Exception) {
+                    <span>Invalid Image</span>
+                }
             } else {
-                <span style="color: grey; font-weight: normal">No Image</span>
+                <span>No Image</span>
             }
         </th>
         <td>
-            @Html.DisplayFor(modelItem => item.language)
+            @item.language
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.publication_date)
+            @(item.publication_date.HasValue ? item.publication_date.Value.ToString("yyyy") : "")
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", new { id = item.id }) |
