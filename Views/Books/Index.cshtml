@@ -6,6 +6,12 @@
 
 <h2>Books</h2>
 
+@if (ViewBag.ErrorMessage != null) {
+    <div class="alert alert-danger">
+        @ViewBag.ErrorMessage
+    </div>
+}
+
 <p>
     @Html.ActionLink("Create New", "Create")
 </p>
@@ -15,7 +21,7 @@
             Title
         </th>
         <th>
-           Physical location
+            Physical location
         </th>
         <th>
             Available
@@ -30,7 +36,7 @@
             Cover image
         </th>
         <th>
-           Language
+            Language
         </th>
         <th>
             Publication date
@@ -38,46 +44,46 @@
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @item.title
-        </td>
-        <td>
-            @item.physical_location
-        </td>
-        <td>
-            <input type="checkbox" @(item.is_available ? "checked='checked'" : "") disabled="disabled" />
-        </td>
-        <td>
-            @item.isbn
-        </td>
-        <td>
-            @item.publisher_id
-        </td>
-        <th>
-            @if (item.cover_image != null && item.cover_image.Length > 0) {
-                try {
-                    <img src="data:image/jpeg;base64,@Convert.ToBase64String(item.cover_image)" alt="Cover" style="max-width: 100px;" />
-                } catch (Exception) {
-                    <span>Invalid Image</span>
+    @foreach (var item in Model) {
+        <tr>
+            <td>
+                @item.title
+            </td>
+            <td>
+                @item.physical_location
+            </td>
+            <td>
+                <input type="checkbox" @(item.is_available ? "checked='checked'" : "") disabled="disabled" />
+            </td>
+            <td>
+                @item.isbn
+            </td>
+            <td>
+                @item.publisher_id
+            </td>
+            <th>
+                @if (item.cover_image != null && item.cover_image.Length > 0) {
+                    try {
+                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(item.cover_image)" alt="Cover" style="max-width: 100px;" />
+                    } catch (Exception) {
+                        <span>Invalid Image</span>
+                    }
+                } else {
+                    <span>No Image</span>
                 }
-            } else {
-                <span>No Image</span>
-            }
-        </th>
-        <td>
-            @item.language
-        </td>
-        <td>
-            @(item.publication_date.HasValue ? item.publication_date.Value.ToString("yyyy") : "")
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id = item.id }) |
-            @Html.ActionLink("Details", "Details", new { id = item.id }) |
-            @Html.ActionLink("Delete", "Delete", new { id = item.id })
-        </td>
-    </tr>
-}
+            </th>
+            <td>
+                @item.language
+            </td>
+            <td>
+                @(item.publication_date.HasValue ? item.publication_date.Value.ToString("yyyy") : "")
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.id }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.id })
+            </td>
+        </tr>
+    }
 
 </table>

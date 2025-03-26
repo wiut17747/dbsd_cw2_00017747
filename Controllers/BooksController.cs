@@ -11,14 +11,11 @@ using dbsd_cw2_00017747.Models;
 
 namespace dbsd_cw2_00017747.Controllers {
     public class BooksController : Controller {
-        // GET: Books
+
         private string connection_string = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
         public ActionResult Index() {
             List<Book> books = new List<Book>();
-
             try {
-
-
                 using (SqlConnection conn = new SqlConnection(connection_string)) {
                     SqlCommand cmd = new SqlCommand("sp_Get_All_Books", conn);
                     cmd.CommandType = System.Data.CommandType.StoredProcedure;
@@ -44,6 +41,11 @@ namespace dbsd_cw2_00017747.Controllers {
                 ViewBag.Error = $"Message: {ex.Message} | Inner Exception: {(ex.InnerException?.Message ?? "None")} | Stack Trace: {ex.StackTrace}";
                 return View("Error");
             }
+
+            if (TempData["ErrorMessage"] != null) {
+                ViewBag.ErrorMessage = TempData["ErrorMessage"];
+            }
+
             return View(books);
         }
 
@@ -98,9 +100,13 @@ namespace dbsd_cw2_00017747.Controllers {
                         cmd.ExecuteNonQuery();
                     }
                     return RedirectToAction("Index");
-                } catch (Exception ex) {
-                    ModelState.AddModelError("", $"error saving book: {ex.Message}");
-                    System.Diagnostics.Debug.WriteLine($"database error: {ex.Message}");
+                } catch (SqlException ex) {
+                    if (ex.Message.Contains("Operations on Book table are not allowed outside office hours")) {
+                        ModelState.AddModelError("", "Cannot create a book outside office hours (10:00 - 17:00). Please try again during office hours.");
+                    } else {
+                        ModelState.AddModelError("", $"Error saving book: {ex.Message}");
+                    }
+                    System.Diagnostics.Debug.WriteLine($"Database error: {ex.Message}");
                     return View(book);
                 }
             } else {
@@ -166,9 +172,13 @@ namespace dbsd_cw2_00017747.Controllers {
                     conn.Open();
                     cmd.ExecuteNonQuery();
                 }
-            } catch (Exception ex) {
-                ViewBag.Error = $"error deleting book: {ex.Message}";
-                return View("Error");
+            } catch (SqlException ex) {
+                if (ex.Message.Contains("Operations on Book table are not allowed outside office hours")) {
+                    TempData["ErrorMessage"] = "Cannot delete a book outside office hours (10:00 - 17:00). Please try again during office hours.";
+                } else {
+                    TempData["ErrorMessage"] = $"Error deleting book: {ex.Message}";
+                }
+                return RedirectToAction("Index");
             }
 
             return RedirectToAction("Index");
@@ -284,8 +294,7 @@ namespace dbsd_cw2_00017747.Controllers {
                         return View(book);
                     }
                 } else {
-                    // If no new image is uploaded, fetch the existing image from the database
-                    System.Diagnostics.Debug.WriteLine("No new cover image uploaded, retrieving existing image...");
+
                     try {
                         using (SqlConnection conn = new SqlConnection(connection_string)) {
                             SqlCommand cmd = new SqlCommand("SELECT cover_image FROM Book WHERE id = @id", conn);
@@ -323,8 +332,12 @@ namespace dbsd_cw2_00017747.Controllers {
                         cmd.ExecuteNonQuery();
                     }
                     return RedirectToAction("Index");
-                } catch (Exception ex) {
-                    ModelState.AddModelError("", $"Error updating book: {ex.Message}");
+                } catch (SqlException ex) {
+                    if (ex.Message.Contains("Operations on Book table are not allowed outside office hours")) {
+                        ModelState.AddModelError("", "Cannot update a book outside office hours (10:00 - 17:00). Please try again during office hours.");
+                    } else {
+                        ModelState.AddModelError("", $"Error updating book: {ex.Message}");
+                    }
                     System.Diagnostics.Debug.WriteLine($"Database error: {ex.Message}");
                     return View(book);
                 }
