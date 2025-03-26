@@ -64,6 +64,51 @@ begin
 end
 go
     
+create procedure GetFilteredPagedSortedBooks
+    @TitleFilter nvarchar(200) = null,
+    @PublicationDateFilter datetime = null,
+    @PublisherNameFilter nvarchar(200) = null,
+    @SortColumn nvarchar(50) = 'title',
+    @SortDirection nvarchar(4) = 'ASC',
+    @PageNumber int = 1,
+    @PageSize int = 10
+as
+begin
+    set nocount on;
+
+    -- Validate sort column and direction
+    if @SortColumn not in ('title', 'publication_date', 'publisher_name')
+        set @SortColumn = 'title';
+    if @SortDirection not in ('ASC', 'DESC')
+        set @SortDirection = 'ASC';
+
+    declare @Offset int = (@PageNumber - 1) * @PageSize;
+
+    select
+        b.Id as BookId,
+        b.Title,
+        b.Publication_Date,
+        p.Name as PublisherName,
+        count(*) over() as TotalRecords
+    from
+        Book b
+    inner join
+        Publisher p on b.publisher_id = p.id
+    left join
+        Loan l on b.id = l.book_id
+    where
+        (@TitleFilter is null or b.Title LIKE '%' + @TitleFilter + '%') and
+        (@PublicationDateFilter is null or b.Publication_Date >= @PublicationDateFilter) and
+        (@PublisherNameFilter is null or p.Name LIKE '%' + @PublisherNameFilter + '%')
+    order by
+        case @SortColumn
+            when 'title' then b.Title
+            when 'publication_date' then b.Publication_Date
+            when 'publisher_name' then p.Name
+        end desc
+    offset @Offset rows
+    fetch next @PageSize rows only;
+end
 
 
 
