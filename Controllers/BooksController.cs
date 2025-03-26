@@ -53,8 +53,6 @@ namespace dbsd_cw2_00017747.Controllers {
 
         [HttpPost]
         public ActionResult Create([Bind(Exclude = "cover_image")] Book book, HttpPostedFileBase cover_image) {
-            System.Diagnostics.Debug.WriteLine("Entered Create POST action");
-
             if (ModelState.IsValid) {
                 System.Diagnostics.Debug.WriteLine($"cover_image: {cover_image?.FileName}, ContentLength: {cover_image?.ContentLength}, ContentType: {cover_image?.ContentType}");
 

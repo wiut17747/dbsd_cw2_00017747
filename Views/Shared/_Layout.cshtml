@@ -12,7 +12,13 @@
         <div class="container">
             @Html.ActionLink("WIUT Library", "Index", "Books", new { area = "" }, new { @class = "wiut-brand" })
           
-           
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item @(ViewContext.RouteData.Values["controller"].ToString() == "EntityBooks" ? "active" : "")">
+                        <a href="@Url.Action("Index", "EntityBooks", new { area = "" })" class="nav-link" style="color: #000;">Entity Books</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
     <div class="container body-content">

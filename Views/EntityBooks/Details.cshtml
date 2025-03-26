@@ -1,0 +1,87 @@
+﻿@model dbsd_cw2_00017747.Models.EFBook
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Book</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.title)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.title)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.physical_location)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.physical_location)
+        </dd>
+
+        <dt>
+            <input type="checkbox" @(Model.is_available ? "checked='checked'" : "") disabled="disabled" />
+        </dt>
+
+     
+
+        <dt>
+            @Html.DisplayNameFor(model => model.isbn)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.isbn)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.publisher_id)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.publisher_id)
+        </dd>
+
+        <dt>
+            Cover Image
+        </dt>
+        <dd>
+            @if (Model.cover_image != null && Model.cover_image.Length > 0) {
+                try {
+                    <img src="data:image/jpeg;base64,@Convert.ToBase64String(Model.cover_image)" alt="Cover" style="max-width: 200px;" />
+                } catch {
+                    <span>Invalid Image</span>
+                }
+            } else {
+                <span>No Image</span>
+            }
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.language)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.language)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.publication_date)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.publication_date)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", "EntityBooks", new { id = Model.id }) |
+    @Html.ActionLink("Back to List", "Index", "EntityBooks")
+</p>
