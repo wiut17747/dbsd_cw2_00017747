@@ -1,0 +1,70 @@
+﻿@model List<dbsd_cw2_00017747.Models.BookLoanPublisher>
+@using dbsd_cw2_00017747.Models
+
+@{
+    var filter = ViewBag.Filter as FilterParameters;
+}
+
+<h2>Book Loan Publisher Data</h2>
+
+<form method="get">
+    <label>Publisher Name:</label>
+    <input type="text" name="PublisherName" value="@filter.PublisherName" />
+
+    <label>Loan Date From:</label>
+    <input type="date" name="LoanDateFrom" value="@(filter.LoanDateFrom?.ToString("yyyy-MM-dd"))" />
+
+    <label>Loan Date To:</label>
+    <input type="date" name="LoanDateTo" value="@(filter.LoanDateTo?.ToString("yyyy-MM-dd"))" />
+
+    <label>Is Available:</label>
+    <select name="IsAvailable">
+        <option value="">All</option>
+        <option value="true" @(filter.IsAvailable == true ? "selected" : "")>Yes</option>
+        <option value="false" @(filter.IsAvailable == false ? "selected" : "")>No</option>
+    </select>
+
+    <label>Sort By:</label>
+    <select name="SortColumn">
+        <option value="BookTitle" @(filter.SortColumn == "BookTitle" ? "selected" : "")>Book Title</option>
+        <option value="PublisherName" @(filter.SortColumn == "PublisherName" ? "selected" : "")>Publisher Name</option>
+        <option value="LoanDate" @(filter.SortColumn == "LoanDate" ? "selected" : "")>Loan Date</option>
+        <option value="IsAvailable" @(filter.SortColumn == "IsAvailable" ? "selected" : "")>Is Available</option>
+    </select>
+
+    <label>Sort Order:</label>
+    <select name="SortOrder">
+        <option value="ASC" @(filter.SortOrder == "ASC" ? "selected" : "")>Ascending</option>
+        <option value="DESC" @(filter.SortOrder == "DESC" ? "selected" : "")>Descending</option>
+    </select>
+
+    <label>Page Number:</label>
+    <input type="number" name="PageNumber" value="@filter.PageNumber" min="1" />
+
+    <label>Page Size:</label>
+    <input type="number" name="PageSize" value="@filter.PageSize" min="1" />
+
+    <button type="submit">Filter</button>
+</form>
+
+<table>
+    <thead>
+    <tr>
+        <th>Book Title</th>
+        <th>Publisher Name</th>
+        <th>Loan Date</th>
+        <th>Is Available</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.BookTitle</td>
+            <td>@item.PublisherName</td>
+            <td>@(item.LoanDate?.ToString("yyyy-MM-dd"))</td>
+            <td>@(item.IsAvailable ? "Yes" : "No")</td>
+        </tr>
+    }
+    </tbody>
+</table>
