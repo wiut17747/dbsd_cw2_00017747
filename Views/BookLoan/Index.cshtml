@@ -7,7 +7,7 @@
 
 <h2>Book Loan Publisher Data</h2>
 
-<form method="get">
+<form method="get" style="display: flex; flex-direction: column;">
     <label>Publisher Name:</label>
     <input type="text" name="PublisherName" value="@filter.PublisherName" />
 
@@ -44,7 +44,7 @@
     <label>Page Size:</label>
     <input type="number" name="PageSize" value="@filter.PageSize" min="1" />
 
-    <button type="submit">Filter</button>
+    <button type="submit" style="width: 200px">Filter</button>
 </form>
 
 <table>
@@ -68,3 +68,7 @@
     }
     </tbody>
 </table>
+
+<form method="get" action="@Url.Action("ExportXml", "BookLoan", filter)">
+    <button type="submit">Export to XML</button>
+</form>

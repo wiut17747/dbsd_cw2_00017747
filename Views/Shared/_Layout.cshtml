@@ -16,6 +16,10 @@
                 <ul class="navbar-nav">
                     <li class="nav-item @(ViewContext.RouteData.Values["controller"].ToString() == "EntityBooks" ? "active" : "")">
                         <a href="@Url.Action("Index", "EntityBooks", new { area = "" })" class="nav-link" style="color: #000;">Entity Books</a>
+
+                    </li>
+                    <li class="nav-item @(ViewContext.RouteData.Values["controller"].ToString() == "BookLoan" ? "active" : "")">
+                        <a href="@Url.Action("Index", "BookLoan", new { area = "" })" class="nav-link" style="color: #000;">Get & Filter Book, Loan, Publisher Data</a>
                     </li>
                 </ul>
             </div>

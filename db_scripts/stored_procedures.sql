@@ -64,51 +64,81 @@ begin
 end
 go
     
-create procedure GetFilteredPagedSortedBooks
-    @TitleFilter nvarchar(200) = null,
-    @PublicationDateFilter datetime = null,
-    @PublisherNameFilter nvarchar(200) = null,
-    @SortColumn nvarchar(50) = 'title',
-    @SortDirection nvarchar(4) = 'ASC',
-    @PageNumber int = 1,
-    @PageSize int = 10
-as
-begin
-    set nocount on;
+CREATE PROCEDURE sp_GetFiltered_Book_Loan_Publisher
+    @PublisherName NVARCHAR(200) = NULL,
+    @LoanDateFrom DATETIME = NULL,
+    @LoanDateTo DATETIME = NULL,
+    @IsAvailable BIT = NULL,
+    @SortColumn NVARCHAR(50) = 'BookTitle', -- Default sort column
+    @SortOrder NVARCHAR(4) = 'ASC', -- Default sort order
+    @PageNumber INT = 1,
+    @PageSize INT = 10
+AS
+BEGIN
+    SET NOCOUNT ON;
 
-    -- Validate sort column and direction
-    if @SortColumn not in ('title', 'publication_date', 'publisher_name')
-        set @SortColumn = 'title';
-    if @SortDirection not in ('ASC', 'DESC')
-        set @SortDirection = 'ASC';
+    SELECT
+        b.id AS BookId,
+        b.title AS BookTitle,
+        p.name AS PublisherName,
+        l.loan_date AS LoanDate,
+        b.is_available AS IsAvailable
+    FROM Book b
+    INNER JOIN Publisher p ON b.publisher_id = p.id
+    LEFT JOIN Loan l ON b.id = l.book_id
+    WHERE
+        (@PublisherName IS NULL OR p.name LIKE '%' + @PublisherName + '%') AND
+        (@LoanDateFrom IS NULL OR l.loan_date >= @LoanDateFrom) AND
+        (@LoanDateTo IS NULL OR l.loan_date <= @LoanDateTo) AND
+        (@IsAvailable IS NULL OR b.is_available = @IsAvailable)
+    ORDER BY
+        CASE WHEN @SortColumn = 'BookTitle' AND @SortOrder = 'ASC' THEN b.title END ASC,
+        CASE WHEN @SortColumn = 'BookTitle' AND @SortOrder = 'DESC' THEN b.title END DESC,
+        CASE WHEN @SortColumn = 'PublisherName' AND @SortOrder = 'ASC' THEN p.name END ASC,
+        CASE WHEN @SortColumn = 'PublisherName' AND @SortOrder = 'DESC' THEN p.name END DESC,
+        CASE WHEN @SortColumn = 'LoanDate' AND @SortOrder = 'ASC' THEN l.loan_date END ASC,
+        CASE WHEN @SortColumn = 'LoanDate' AND @SortOrder = 'DESC' THEN l.loan_date END DESC,
+        CASE WHEN @SortColumn = 'IsAvailable' AND @SortOrder = 'ASC' THEN b.is_available END ASC,
+        CASE WHEN @SortColumn = 'IsAvailable' AND @SortOrder = 'DESC' THEN b.is_available END DESC
+    OFFSET (@PageNumber - 1) * @PageSize ROWS
+    FETCH NEXT @PageSize ROWS ONLY;
 
-    declare @Offset int = (@PageNumber - 1) * @PageSize;
+END;
 
-    select
-        b.Id as BookId,
-        b.Title,
-        b.Publication_Date,
-        p.Name as PublisherName,
-        count(*) over() as TotalRecords
-    from
-        Book b
-    inner join
-        Publisher p on b.publisher_id = p.id
-    left join
-        Loan l on b.id = l.book_id
-    where
-        (@TitleFilter is null or b.Title LIKE '%' + @TitleFilter + '%') and
-        (@PublicationDateFilter is null or b.Publication_Date >= @PublicationDateFilter) and
-        (@PublisherNameFilter is null or p.Name LIKE '%' + @PublisherNameFilter + '%')
-    order by
-        case @SortColumn
-            when 'title' then b.Title
-            when 'publication_date' then b.Publication_Date
-            when 'publisher_name' then p.Name
-        end desc
-    offset @Offset rows
-    fetch next @PageSize rows only;
-end
+GO
+CREATE PROCEDURE get_Xml
+    @PublisherName NVARCHAR(200) = NULL,
+    @LoanDateFrom DATETIME = NULL,
+    @LoanDateTo DATETIME = NULL,
+    @IsAvailable BIT = NULL,
+    @SortColumn NVARCHAR(50) = 'BookTitle',
+    @SortOrder NVARCHAR(4) = 'ASC'
+AS
+BEGIN
+    SET NOCOUNT ON;
 
-
-
+    SELECT
+        b.id AS BookId,
+        b.title AS BookTitle,
+        p.name AS PublisherName,
+        l.loan_date AS LoanDate,
+        b.is_available AS IsAvailable
+    FROM Book b
+    INNER JOIN Publisher p ON b.publisher_id = p.id
+    LEFT JOIN Loan l ON b.id = l.book_id
+    WHERE
+        (@PublisherName IS NULL OR p.name LIKE '%' + @PublisherName + '%') AND
+        (@LoanDateFrom IS NULL OR l.loan_date >= @LoanDateFrom) AND
+        (@LoanDateTo IS NULL OR l.loan_date <= @LoanDateTo) AND
+        (@IsAvailable IS NULL OR b.is_available = @IsAvailable)
+    ORDER BY
+        CASE WHEN @SortColumn = 'BookTitle' AND @SortOrder = 'ASC' THEN b.title END ASC,
+        CASE WHEN @SortColumn = 'BookTitle' AND @SortOrder = 'DESC' THEN b.title END DESC,
+        CASE WHEN @SortColumn = 'PublisherName' AND @SortOrder = 'ASC' THEN p.name END ASC,
+        CASE WHEN @SortColumn = 'PublisherName' AND @SortOrder = 'DESC' THEN p.name END DESC,
+        CASE WHEN @SortColumn = 'LoanDate' AND @SortOrder = 'ASC' THEN l.loan_date END ASC,
+        CASE WHEN @SortColumn = 'LoanDate' AND @SortOrder = 'DESC' THEN l.loan_date END DESC,
+        CASE WHEN @SortColumn = 'IsAvailable' AND @SortOrder = 'ASC' THEN b.is_available END ASC,
+        CASE WHEN @SortColumn = 'IsAvailable' AND @SortOrder = 'DESC' THEN b.is_available END DESC
+    FOR XML PATH('BookLoan'), ROOT('BookLoanData');
+END;
