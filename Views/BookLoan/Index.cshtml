@@ -49,26 +49,30 @@
 
 <table>
     <thead>
-    <tr>
-        <th>Book Title</th>
-        <th>Publisher Name</th>
-        <th>Loan Date</th>
-        <th>Is Available</th>
-    </tr>
+        <tr>
+            <th>Book Title</th>
+            <th>Publisher Name</th>
+            <th>Loan Date</th>
+            <th>Is Available</th>
+        </tr>
     </thead>
     <tbody>
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>@item.BookTitle</td>
-            <td>@item.PublisherName</td>
-            <td>@(item.LoanDate?.ToString("yyyy-MM-dd"))</td>
-            <td>@(item.IsAvailable ? "Yes" : "No")</td>
-        </tr>
-    }
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.BookTitle</td>
+                <td>@item.PublisherName</td>
+                <td>@(item.LoanDate?.ToString("yyyy-MM-dd"))</td>
+                <td>@(item.IsAvailable ? "Yes" : "No")</td>
+            </tr>
+        }
     </tbody>
 </table>
 
 <form method="get" action="@Url.Action("ExportXml", "BookLoan", filter)">
     <button type="submit">Export to XML</button>
+</form>
+
+<form method="get" action="@Url.Action("ExportJson", "BookLoan", filter)">
+    <button type="submit">Export to JSON</button>
 </form>

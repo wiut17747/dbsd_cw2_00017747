@@ -65,7 +65,6 @@ namespace dbsd_cw2_00017747.Controllers
                     }
                 }
             }
-            // ViewBag.Filter = filter TODO()
             ViewBag.Filter = filterParameters;
             return View(result);
         }
@@ -103,6 +102,35 @@ namespace dbsd_cw2_00017747.Controllers
             }
 
             return File(Encoding.UTF8.GetBytes(xmlData.ToString()), "application/xml", "BookLoanData.xml");
+        }
+
+        public ActionResult ExportJson(dbsd_cw2_00017747.Models.FilterParameters filter)
+        {
+            string jsonData = "";
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("get_Json", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@PublisherName", string.IsNullOrEmpty(filter.PublisherName) ? (object)DBNull.Value : filter.PublisherName);
+                    command.Parameters.AddWithValue("@LoanDateFrom", filter.LoanDateFrom.HasValue ? (object)filter.LoanDateFrom.Value : DBNull.Value);
+                    command.Parameters.AddWithValue("@LoanDateTo", filter.LoanDateTo.HasValue ? (object)filter.LoanDateTo.Value : DBNull.Value);
+                    command.Parameters.AddWithValue("@IsAvailable", filter.IsAvailable.HasValue ? (object)filter.IsAvailable.Value : DBNull.Value);
+                    command.Parameters.AddWithValue("@SortColumn", filter.SortColumn);
+                    command.Parameters.AddWithValue("@SortOrder", filter.SortOrder);
+
+                    jsonData = (string)command.ExecuteScalar();
+                }
+            }
+
+            if (string.IsNullOrEmpty(jsonData))
+            {
+                return Content("No data to export.");
+            }
+
+            return File(Encoding.UTF8.GetBytes(jsonData), "application/json", "BookLoanData.json");
         }
     }
 }

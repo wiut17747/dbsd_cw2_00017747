@@ -142,3 +142,61 @@ BEGIN
         CASE WHEN @SortColumn = 'IsAvailable' AND @SortOrder = 'DESC' THEN b.is_available END DESC
     FOR XML PATH('BookLoan'), ROOT('BookLoanData');
 END;
+
+GO
+CREATE PROCEDURE get_Json
+    @PublisherName NVARCHAR(200) = NULL,
+    @LoanDateFrom DATETIME = NULL,
+    @LoanDateTo DATETIME = NULL,
+    @IsAvailable BIT = NULL,
+    @SortColumn NVARCHAR(50) = 'BookTitle',
+    @SortOrder NVARCHAR(4) = 'ASC'
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        (SELECT
+            b.id AS BookId,
+            b.title AS BookTitle,
+            p.name AS PublisherName,
+            l.loan_date AS LoanDate,
+            b.is_available AS IsAvailable
+        FROM Book b
+        INNER JOIN Publisher p ON b.publisher_id = p.id
+        LEFT JOIN Loan l ON b.id = l.book_id
+        WHERE
+            (@PublisherName IS NULL OR p.name LIKE '%' + @PublisherName + '%') AND
+            (@LoanDateFrom IS NULL OR l.loan_date >= @LoanDateFrom) AND
+            (@LoanDateTo IS NULL OR l.loan_date <= @LoanDateTo) AND
+            (@IsAvailable IS NULL OR b.is_available = @IsAvailable)
+        ORDER BY
+            CASE WHEN @SortColumn = 'BookTitle' AND @SortOrder = 'ASC' THEN b.title END ASC,
+            CASE WHEN @SortColumn = 'BookTitle' AND @SortOrder = 'DESC' THEN b.title END DESC,
+            CASE WHEN @SortColumn = 'PublisherName' AND @SortOrder = 'ASC' THEN p.name END ASC,
+            CASE WHEN @SortColumn = 'PublisherName' AND @SortOrder = 'DESC' THEN p.name END DESC,
+            CASE WHEN @SortColumn = 'LoanDate' AND @SortOrder = 'ASC' THEN l.loan_date END ASC,
+            CASE WHEN @SortColumn = 'LoanDate' AND @SortOrder = 'DESC' THEN l.loan_date END DESC,
+            CASE WHEN @SortColumn = 'IsAvailable' AND @SortOrder = 'ASC' THEN b.is_available END ASC,
+            CASE WHEN @SortColumn = 'IsAvailable' AND @SortOrder = 'DESC' THEN b.is_available END DESC
+        FOR JSON PATH) AS JsonData;
+END;
+
+GO
+CREATE TRIGGER tr_LoanDurationCheck
+ON Loan
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (
+        SELECT 1
+        FROM inserted
+        WHERE DATEDIFF(day, loan_date, due_date) > 30
+    )
+    BEGIN
+        RAISERROR('Loan duration exceeds 30 days.', 16, 1);
+        ROLLBACK TRANSACTION;
+    END;
+END;
